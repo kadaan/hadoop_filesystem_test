@@ -1,5 +1,6 @@
 package info.kadaan;
 
+import com.google.common.io.Closer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -16,7 +17,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class HadoopUtilsTest {
+public class ParallelRunnerTest {
     @Test
     public void testMovePath() throws IOException, URISyntaxException {
         String expected = "test";
@@ -25,6 +26,7 @@ public class HadoopUtilsTest {
         Path src = new Path("/src/file.txt");
         Path dst = new Path("/dst/file.dst");
         FileSystem fs1 = Mockito.mock(FileSystem.class);
+        Mockito.when(fs1.exists(src)).thenReturn(true);
         Mockito.when(fs1.getUri()).thenReturn(new URI("fs1:////"));
         Mockito.when(fs1.getFileStatus(src)).thenReturn(new FileStatus(1, false, 1, 1, 1, src));
         Mockito.when(fs1.open(src))
@@ -37,8 +39,17 @@ public class HadoopUtilsTest {
         Mockito.when(fs2.getConf()).thenReturn(new Configuration());
         Mockito.when(fs2.create(dst, false)).thenReturn(new FSDataOutputStream(actual, null));
 
-        HadoopUtils.movePath(fs1, src, fs2, dst);
+        Closer closer = Closer.create();
+        try {
+            ParallelRunner parallelRunner = closer.register(new ParallelRunner(1, fs1));
+            parallelRunner.movePath(src, fs2, dst);
+        } catch (Throwable t) {
+            throw closer.rethrow(t);
+        } finally {
+            closer.close();
+        }
 
+        Mockito.verify(fs1, Mockito.times(1)).exists(src);
         Mockito.verify(fs1, Mockito.times(1)).getUri();
         Mockito.verify(fs1, Mockito.times(1)).getFileStatus(src);
         Mockito.verify(fs1, Mockito.times(1)).open(src);

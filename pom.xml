@@ -8,6 +8,7 @@
     <name>hadoop-filesystem-test</name>
     <properties>
         <hadoop.version>2.6.0</hadoop.version>
+        <guava.version>15.0</guava.version>
         <testng.version>6.9.6</testng.version>
         <mockito.version>1.10.19</mockito.version>
     </properties>
@@ -47,6 +48,11 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
             <version>${hadoop.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
