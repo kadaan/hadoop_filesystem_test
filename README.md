@@ -1,1 +1,1 @@
-# hadoop_filesystem_test
+[![Build Status](https://travis-ci.org/kadaan/hadoop_filesystem_test.svg?branch=master)](https://travis-ci.org/kadaan/hadoop_filesystem_test)
